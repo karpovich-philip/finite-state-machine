@@ -1,15 +1,26 @@
 class FSM {
-
   /**
    * Creates new FSM instance.
    * @param config
    */
   constructor(config) {
-    this.state = {
-      sleepeng: false,
+    if(config === undefined) {
+      throw new Error("Error");
+    }
+
+    this.currEvent = ''
+    this.initial = 'normal'
+    this.states = {
+      normal:   true,
+      busy:     false,
       hungry:   false,
-      mormal:   false,
-      busy:     false
+      sleeping: false
+    }
+    this.event = {
+      getHungry: 'getHungry',
+      study:     'study',
+      getTired:  'getTired',
+      getUp:     'getUp'
     }
   }
 
@@ -18,7 +29,7 @@ class FSM {
    * @returns {String}
    */
   getState() {
-
+    return this.initial;
   }
 
   /**
@@ -26,15 +37,51 @@ class FSM {
    * @param state
    */
   changeState(state) {
-
+    if (state === 'normal') {
+      this.initial = 'normal';
+      this.states.normal = !this.states.normal //подумать надо ли это
+    } else if (state === 'busy') {
+      this.initial = 'busy';
+      this.states.busy = !this.states.busy
+    } else if (state === 'hungry') {
+      this.initial = 'hungry';
+      this.states.hungry = !this.states.hungry
+    } else if (state === 'sleeping') {
+      this.initial = 'sleeping';
+      this.states.sleeping = !this.states.sleeping
+    } else throw new Error("Error");
   }
 
   /**
    * Changes state according to event transition rules.
    * @param event
    */
-  trigger(event) {
+  trigger() {
+    var eve = this.currEvent;
 
+    if (eve === 'getHungry') {
+      this.states.normal = false;
+      this.states.buzy = true;
+      this.states.hungry = false;
+      this.states.sleeping = true;
+    } else if (eve === 'study') {
+      this.states.normal = true;
+      this.states.buzy = false;
+      this.states.hungry = false;
+      this.states.sleeping = false;
+    } else if (eve === 'getTired') {
+      this.states.normal = false;
+      this.states.buzy = true;
+      this.states.hungry = false;
+      this.states.sleeping = false;
+    } else if (eve === 'getUp') {
+      this.states.normal = false;
+      this.states.buzy = false;
+      this.states.hungry = false;
+      this.states.sleeping = true;
+    }
+
+    getStates(eve);
   }
 
   /**
@@ -45,13 +92,32 @@ class FSM {
   }
 
   /**
-   * Returns an array of states for which there are specified event transition rules.
-   * Returns all states if argument is undefined.
+   * Returns an array of states for which there are specified event transition rules. ввывести состояния в соответсвии
+   * с ивентом Returns all states if argument is undefined.
    * @param event
    * @returns {Array}
    */
   getStates(event) {
+    var stateArr = [];
+    //      var eve = this.currEvent
 
+    if (event === undefined) {
+      for (var key in this.states) {
+        stateArr.push(this.states[key])
+      }
+    } else if (event === 'eat') {
+      return this.states.normal
+    } else if (event === 'getHungry') {
+      return this.states.hungry
+    } else if (event === 'study') {
+      return this.states.busy
+    } else if (event === 'getTired') {
+      return this.states.sleeping
+    } else if (event === 'getUp') {
+      return this.states.normal
+    }
+
+    return stateArr;
   }
 
   /**
@@ -79,5 +145,4 @@ class FSM {
 
   }
 }
-
 module.exports = FSM;
