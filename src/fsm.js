@@ -17,10 +17,10 @@ class FSM {
       sleeping: false
     }
     this.event = {
-      getHungry: 'getHungry',
+      get_hungry: 'get_hungry',
       study:     'study',
-      getTired:  'getTired',
-      getUp:     'getUp'
+      get_tired:  'get_tired',
+      get_up:     'get_up'
     }
   }
 
@@ -58,31 +58,21 @@ class FSM {
    */
   trigger(event) {
 
-    var eve = this.currEvent;
-
-    if (eve === 'getHungry') {
-      this.states.normal = false;
-      this.states.buzy = true;
-      this.states.hungry = false;
-      this.states.sleeping = true;
-    } else if (eve === 'study') {
-      this.states.normal = true;
-      this.states.buzy = false;
-      this.states.hungry = false;
-      this.states.sleeping = false;
-    } else if (eve === 'getTired') {
-      this.states.normal = false;
-      this.states.buzy = true;
-      this.states.hungry = false;
-      this.states.sleeping = false;
-    } else if (eve === 'getUp') {
-      this.states.normal = false;
-      this.states.buzy = false;
-      this.states.hungry = false;
-      this.states.sleeping = true;
+    if (event === 'get_hungry') {
+      this.currState = 'hungry'
+      //        this.states.normal = false;
+      //        this.states.buzy = true;
+      //        this.states.hungry = false;
+      //        this.states.sleeping = true;
+    } else if (event === 'study') {
+      this.currState = 'busy'
+    } else if (event === 'get_tired') {
+      this.currState = 'sleeping'
+    } else if (event === 'get_up') {
+      this.currState = 'normal'
+    } else if (event === 'eat') {
+      this.currState = 'normal'
     }
-
-    //getStates(eve);
   }
 
   /**
@@ -100,7 +90,6 @@ class FSM {
    */
   getStates(event) {
     var stateArr = [];
-    //      var eve = this.currEvent
 
     if (event === undefined) {
 
@@ -109,16 +98,20 @@ class FSM {
       } return stateArr;
 
     } else if (event === 'eat') {
-      stateArr = []
-      return this.states.normal
-    } else if (event === 'getHungry') {
-      return this.states.hungry
+      stateArr = ['hungry'];
+      return stateArr;
+    } else if (event === 'get_hungry') {
+      stateArr = ['busy', 'sleeping'];
+      return stateArr;
     } else if (event === 'study') {
-      return this.states.busy
-    } else if (event === 'getTired') {
-      return this.states.sleeping
-    } else if (event === 'getUp') {
-      return this.states.normal
+      stateArr = ['normal'];
+      return stateArr;
+    } else if (event === 'get_tired') {
+      stateArr = ['busy'];
+      return stateArr;
+    } else if (event === 'get_up') {
+      stateArr = ['sleeping'];
+      return stateArr;
     } else
 
     return stateArr;
