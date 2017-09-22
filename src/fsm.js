@@ -9,7 +9,7 @@ class FSM {
     }
 
     this.currEvent = ''
-    this.initial = 'normal'
+    this.currState = 'normal'
     this.states = {
       normal:   true,
       busy:     false,
@@ -29,7 +29,7 @@ class FSM {
    * @returns {String}
    */
   getState() {
-    return this.initial;
+    return this.currState;
   }
 
   /**
@@ -38,16 +38,16 @@ class FSM {
    */
   changeState(state) {
     if (state === 'normal') {
-      this.initial = 'normal';
+      this.currState = 'normal';
       this.states.normal = !this.states.normal //подумать надо ли это
     } else if (state === 'busy') {
-      this.initial = 'busy';
+      this.currState = 'busy';
       this.states.busy = !this.states.busy
     } else if (state === 'hungry') {
-      this.initial = 'hungry';
+      this.currState = 'hungry';
       this.states.hungry = !this.states.hungry
     } else if (state === 'sleeping') {
-      this.initial = 'sleeping';
+      this.currState = 'sleeping';
       this.states.sleeping = !this.states.sleeping
     } else throw new Error("Error");
   }
@@ -56,7 +56,8 @@ class FSM {
    * Changes state according to event transition rules.
    * @param event
    */
-  trigger() {
+  trigger(event) {
+
     var eve = this.currEvent;
 
     if (eve === 'getHungry') {
@@ -81,14 +82,14 @@ class FSM {
       this.states.sleeping = true;
     }
 
-    getStates(eve);
+    //getStates(eve);
   }
 
   /**
    * Resets FSM state to initial.
    */
   reset() {
-
+    this.currState = 'normal';
   }
 
   /**
@@ -102,10 +103,13 @@ class FSM {
     //      var eve = this.currEvent
 
     if (event === undefined) {
+
       for (var key in this.states) {
-        stateArr.push(this.states[key])
-      }
+        stateArr.push(key)
+      } return stateArr;
+
     } else if (event === 'eat') {
+      stateArr = []
       return this.states.normal
     } else if (event === 'getHungry') {
       return this.states.hungry
@@ -115,7 +119,7 @@ class FSM {
       return this.states.sleeping
     } else if (event === 'getUp') {
       return this.states.normal
-    }
+    } else
 
     return stateArr;
   }
