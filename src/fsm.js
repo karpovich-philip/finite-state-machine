@@ -8,7 +8,7 @@ class FSM {
       throw new Error("Error");
     }
 
-    this.currEvent = ''
+    this.transition = false
     this.currState = 'normal'
     this.states = {
       normal:   true,
@@ -57,20 +57,22 @@ class FSM {
    * @param event
    */
   trigger(event) {
-
-    if (event === 'get_hungry') {
+    if (this.states.event === false) {
+      throw new Error("Error");
+    } else if (event === 'get_hungry') {
+      this.transition = true;
       this.currState = 'hungry'
-      //        this.states.normal = false;
-      //        this.states.buzy = true;
-      //        this.states.hungry = false;
-      //        this.states.sleeping = true;
     } else if (event === 'study') {
+      this.transition = true;
       this.currState = 'busy'
     } else if (event === 'get_tired') {
+      this.transition = true;
       this.currState = 'sleeping'
     } else if (event === 'get_up') {
+      this.transition = true;
       this.currState = 'normal'
     } else if (event === 'eat') {
+      this.transition = true;
       this.currState = 'normal'
     }
   }
@@ -112,7 +114,7 @@ class FSM {
     } else if (event === 'get_up') {
       stateArr = ['sleeping'];
       return stateArr;
-    } else
+    }
 
     return stateArr;
   }
@@ -123,7 +125,7 @@ class FSM {
    * @returns {Boolean}
    */
   undo() {
-
+    return this.transition
   }
 
   /**
@@ -132,14 +134,14 @@ class FSM {
    * @returns {Boolean}
    */
   redo() {
-
+    return this.transition;
   }
 
   /**
    * Clears transition history
    */
   clearHistory() {
-
+    this.currState = 'normal'
   }
 }
 module.exports = FSM;
