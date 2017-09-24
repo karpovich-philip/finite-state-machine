@@ -1,10 +1,6 @@
 class FSM {
-  /**
-   * Creates new FSM instance.
-   * @param config
-   */
   constructor(config) {
-    if(config === undefined) {
+    if(!config) {
       throw new Error("Error");
     }
 
@@ -30,18 +26,10 @@ class FSM {
     }
   }
 
-  /**
-   * Returns active state.
-   * @returns {String}
-   */
   getState() {
     return this.currState;
   }
 
-  /**
-   * Goes to specified state.
-   * @param state
-   */
   changeState(state) {
     this.prevState = this.currState;
     this.redoState = false;
@@ -58,10 +46,6 @@ class FSM {
       throw new Error("Error");
   }
 
-  /**
-   * Changes state according to event transition rules.
-   * @param event
-   */
   trigger(event) {
     this.redoState = false;
 
@@ -69,7 +53,8 @@ class FSM {
       return x.name === event ? x.name : undefined;
     });
 
-    if(!transition){
+    if (!transition) {
+      this.transitions = null;
       throw new Error("Error");
     }
     this.currEvent = event;
@@ -77,20 +62,10 @@ class FSM {
     this.changeState(transition.to);
   }
 
-
-  /**
-   * Resets FSM state to initial.
-   */
   reset() {
     this.trigger('reset');
   }
 
-  /**
-   * Returns an array of states for which there are specified event transition rules. ввывести состояния в соответсвии
-   * с ивентом Returns all states if argument is undefined.
-   * @param event
-   * @returns {Array}
-   */
   getStates(event) {
     var stateArr = [];
 
@@ -110,11 +85,6 @@ class FSM {
     return stateArr;
   }
 
-  /**
-   * Goes back to previous state.
-   * Returns false if undo is not available.
-   * @returns {Boolean}
-   */
   undo() {
     if (this.currState === 'normal') {
       return false
@@ -133,11 +103,6 @@ class FSM {
 
   }
 
-  /**
-   * Goes redo to state.
-   * Returns false if redo is not available.
-   * @returns {Boolean}
-   */
   redo() {
     if (!this.redoState) {
       return false
@@ -150,9 +115,6 @@ class FSM {
     }
   }
 
-  /**
-   * Clears transition history
-   */
   clearHistory() {
     this.redoState = false;
     this.undoState = false;
