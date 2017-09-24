@@ -45,6 +45,7 @@ class FSM {
   changeState(state) {
     this.prevState = this.currState;
     this.redoState = false;
+    this.undoState = true;
 
     var st = this.transitions.find(function (x) {
       return x.to === state ? x.to : undefined;
