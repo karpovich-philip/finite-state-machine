@@ -8,19 +8,25 @@ class FSM {
       throw new Error("Error");
     }
 
-    this.transition = false
+    this.redoState = false;
+    this.undoState = false;
+    this.currEvent = null;
+    this.prevState = 'normal';
+    this.transition = false;
     this.currState = 'normal'
+    this.transitions = [
+      {name: 'study', from: ['normal'], to: 'busy'},
+      {name: 'get_hungry', from: ['busy', 'sleeping'], to: 'hungry'},
+      {name: 'get_tired', from: ['busy'], to: 'sleeping'},
+      {name: 'get_up', from: ['sleeping'], to: 'normal'},
+      {name: 'eat', from: ['hungry'], to: 'normal'},
+      {name: 'reset', from: ['hungry', 'sleeping', 'busy'], to: 'normal'}
+    ]
     this.states = {
       normal:   true,
       busy:     false,
       hungry:   false,
       sleeping: false
-    }
-    this.event = {
-      get_hungry: 'get_hungry',
-      study:     'study',
-      get_tired:  'get_tired',
-      get_up:     'get_up'
     }
   }
 
@@ -37,19 +43,18 @@ class FSM {
    * @param state
    */
   changeState(state) {
-    if (state === 'normal') {
-      this.currState = 'normal';
-      this.states.normal = !this.states.normal //подумать надо ли это
-    } else if (state === 'busy') {
-      this.currState = 'busy';
-      this.states.busy = !this.states.busy
-    } else if (state === 'hungry') {
-      this.currState = 'hungry';
-      this.states.hungry = !this.states.hungry
-    } else if (state === 'sleeping') {
-      this.currState = 'sleeping';
-      this.states.sleeping = !this.states.sleeping
-    } else throw new Error("Error");
+    this.prevState = this.currState;
+    this.redoState = false;
+
+    var st = this.transitions.find(function (x) {
+      return x.to === state ? x.to : undefined;
+    });
+
+    if(st){
+      this.currState = st.to;
+      this.transition = true;
+    } else
+      throw new Error("Error");
   }
 
   /**
@@ -57,31 +62,26 @@ class FSM {
    * @param event
    */
   trigger(event) {
-    if (this.states.event === false) {
+    this.redoState = false;
+
+    var transition = this.transitions.find(function (x) {
+      return x.name === event ? x.name : undefined;
+    });
+
+    if(!transition){
       throw new Error("Error");
-    } else if (event === 'get_hungry') {
-      this.transition = true;
-      this.currState = 'hungry'
-    } else if (event === 'study') {
-      this.transition = true;
-      this.currState = 'busy'
-    } else if (event === 'get_tired') {
-      this.transition = true;
-      this.currState = 'sleeping'
-    } else if (event === 'get_up') {
-      this.transition = true;
-      this.currState = 'normal'
-    } else if (event === 'eat') {
-      this.transition = true;
-      this.currState = 'normal'
     }
+    this.currEvent = event;
+
+    this.changeState(transition.to);
   }
+
 
   /**
    * Resets FSM state to initial.
    */
   reset() {
-    this.currState = 'normal';
+    this.trigger('reset');
   }
 
   /**
@@ -94,26 +94,16 @@ class FSM {
     var stateArr = [];
 
     if (event === undefined) {
-
       for (var key in this.states) {
         stateArr.push(key)
       } return stateArr;
+    }
 
-    } else if (event === 'eat') {
-      stateArr = ['hungry'];
-      return stateArr;
-    } else if (event === 'get_hungry') {
-      stateArr = ['busy', 'sleeping'];
-      return stateArr;
-    } else if (event === 'study') {
-      stateArr = ['normal'];
-      return stateArr;
-    } else if (event === 'get_tired') {
-      stateArr = ['busy'];
-      return stateArr;
-    } else if (event === 'get_up') {
-      stateArr = ['sleeping'];
-      return stateArr;
+    for (var i = 0; i < this.transitions.length; i++) {
+      if(this.transitions[i].name === event) {
+        stateArr = this.transitions[i].from;
+        break;
+      }
     }
 
     return stateArr;
@@ -125,7 +115,21 @@ class FSM {
    * @returns {Boolean}
    */
   undo() {
-    return this.transition
+    if (this.currState === 'normal') {
+      return false
+    }
+
+    if (!this.undoState) {
+      return false
+    }
+
+    this.currState = this.prevState;
+    this.redoState = true;
+
+    if (this.transition) {
+      return true
+    }
+
   }
 
   /**
@@ -134,14 +138,29 @@ class FSM {
    * @returns {Boolean}
    */
   redo() {
-    return this.transition;
+    if (!this.redoState) {
+      return false
+    }
+
+    this.trigger(this.currEvent);
+
+    if (this.transition) {
+      return true
+    }
   }
 
   /**
    * Clears transition history
    */
   clearHistory() {
+    this.redoState = false;
+    this.undoState = false;
+    this.currEvent = null;
+    this.prevState = null;
+    //this.prevEvent = null;
+    this.transition = false
     this.currState = 'normal'
   }
 }
+
 module.exports = FSM;
