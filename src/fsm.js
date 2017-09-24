@@ -7,9 +7,9 @@ class FSM {
     this.redoState = false;
     this.undoState = false;
     this.currEvent = null;
-    this.prevState = 'normal';
+    this.prevState = null;
     this.transition = false;
-    this.currState = 'normal'
+    this.currState = 'normal';
     this.transitions = [
       {name: 'study', from: ['normal'], to: 'busy'},
       {name: 'get_hungry', from: ['busy', 'sleeping'], to: 'hungry'},
@@ -35,31 +35,29 @@ class FSM {
     this.redoState = false;
     this.undoState = true;
 
-    var st = this.transitions.find(function (x) {
-      return x.to === state ? x.to : undefined;
+    var trans = this.transitions.find(function (n) {
+      return n.to === state ? n.to : false;
     });
 
-    if(st){
-      this.currState = st.to;
+    if(trans){
+      this.currState = trans.to;
       this.transition = true;
-    } else
-      throw new Error("Error");
+    } else throw new Error("Error");
   }
 
   trigger(event) {
     this.redoState = false;
 
-    var transition = this.transitions.find(function (x) {
-      return x.name === event ? x.name : undefined;
+    var trans = this.transitions.find(function (x) {
+      return x.name === event ? x.name : false;
     });
 
-    if (!transition) {
+    if (!trans) {
       this.transitions = null;
       throw new Error("Error");
     }
     this.currEvent = event;
-
-    this.changeState(transition.to);
+    this.changeState(trans.to);
   }
 
   reset() {
@@ -69,7 +67,7 @@ class FSM {
   getStates(event) {
     var stateArr = [];
 
-    if (event === undefined) {
+    if (!event) {
       for (var key in this.states) {
         stateArr.push(key)
       } return stateArr;
@@ -81,48 +79,25 @@ class FSM {
         break;
       }
     }
-
     return stateArr;
   }
 
   undo() {
-    if (this.currState === 'normal') {
-      return false
-    }
-
-    if (!this.undoState) {
-      return false
-    }
-
+    if (this.currState === 'normal') {return false}
+    if (!this.undoState) {return false}
     this.currState = this.prevState;
     this.redoState = true;
-
-    if (this.transition) {
-      return true
-    }
-
+    if (this.transition) {return true}
   }
 
   redo() {
-    if (!this.redoState) {
-      return false
-    }
-
+    if (!this.redoState) {return false}
     this.trigger(this.currEvent);
-
-    if (this.transition) {
-      return true
-    }
+    if (this.transition) {return true}
   }
 
   clearHistory() {
-    this.redoState = false;
-    this.undoState = false;
-    this.currEvent = null;
-    this.prevState = null;
-    //this.prevEvent = null;
-    this.transition = false
-    this.currState = 'normal'
+    this.currState = 'normal';
   }
 }
 
