@@ -29,9 +29,7 @@ class FSM {
     this.redoState = false;
     this.undoState = true;
 
-    let trans = this.transitions.find(function (n) {
-      return n.to === state ? n.to : false;
-    });
+    let trans = this.transitions.find(n => n.to === state ? n.to : false);
 
     if(trans){
       this.currState = trans.to;
@@ -42,9 +40,7 @@ class FSM {
   trigger(event) {
     this.redoState = false;
 
-    let trans = this.transitions.find(function (x) {
-      return x.name === event ? x.name : false;
-    });
+    let trans = this.transitions.find(x => x.name === event ? x.name : false);
 
     if (!trans) {
       this.transitions = null;
@@ -60,17 +56,18 @@ class FSM {
 
   getStates(event) {
     let stateArr = [];
+    let trans = this.transitions;
 
     if (!event) {
-      for (let j = 0; j < this.transitions.length-2; j++) {
-        stateArr.push(this.transitions[j].to)
+      for (let j = 0; j < trans.length-2; j++) {
+        stateArr.push(trans[j].to)
       }
       return stateArr;
     }
 
-    for (let i = 0; i < this.transitions.length; i++) {
-      if(this.transitions[i].name === event) {
-        stateArr = this.transitions[i].from;
+    for (let i = 0; i < trans.length; i++) {
+      if(trans[i].name === event) {
+        stateArr = trans[i].from;
         break;
       }
     }
